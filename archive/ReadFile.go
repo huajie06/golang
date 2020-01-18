@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	f := createFile("test.txt")
+	f := createFile("data/test.txt")
 	defer fileClose(f)
 	fileWrite(f)
 }
