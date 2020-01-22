@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
-	fmt.Println(urlshort.Test("hello"))
-	fmt.Println("hello")
+	fmt.Println(urlshort.Test())
+
+	urlshort.Test1()
 }
