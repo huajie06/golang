@@ -10,26 +10,36 @@ import (
 type S1 struct{}
 
 func (S1) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "user handler not handle or handlefunc")
+	fmt.Fprintln(w, "Use handler not handle or handlefunc")
+}
+
+// S2 ...
+type S2 struct {
+	url  string
+	code int
+}
+
+func (s S2) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, s.url, s.code)
 }
 
 func main() {
-	// urlshort.Test()
+
+	// var pathtourls = map[string]string{
+	// 	"/test": "https://www.google.come",
+	// }
+
 	mux := defaultMux()
-	// mapHandler := urlshort.Test()
 
-	mux.Handle("/api/", S1{})
+	// mapHandler := urlshort.MapHandler()
 
-	fmt.Println("server starting on: 8080")
-	http.ListenAndServe(":8080", mux)
+	fmt.Println("server starting on: 8000")
+	http.ListenAndServe(":8000", mux)
 }
 
 func defaultMux() *http.ServeMux {
 	mux := http.NewServeMux()
-	mux.HandleFunc("/", hello)
+	mux.Handle("/", S1{})
+	mux.Handle("/newpage1", S2{"https://www.google.com", 301})
 	return mux
-}
-
-func hello(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "hello world!")
 }
