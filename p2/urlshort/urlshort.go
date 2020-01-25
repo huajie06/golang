@@ -23,7 +23,8 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 		return nil, err
 	}
 
-	var urlMap = make(map[string]string)
+	// var urlMap = make(map[string]string)
+	var urlMap = map[string]string{} // 2nd way
 	for _, v := range urlPaths {
 		urlMap[v.Path] = v.URL
 	}
