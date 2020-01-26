@@ -35,12 +35,16 @@ func main() {
 
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
 
+	// read from json map
+	jsonmap := urlshort.ParseJSONurl("url.json")
+	jsonHandler := urlshort.MapHandler(jsonmap, mapHandler)
+
 	// read from yaml file
 	body, err := ioutil.ReadFile("url.yaml")
 	if err != nil {
 		panic(err)
 	}
-	yamlHandler, err := urlshort.YAMLHandler(body, mapHandler)
+	yamlHandler, err := urlshort.YAMLHandler(body, jsonHandler)
 
 	yaml := `
 - path: /urlshort

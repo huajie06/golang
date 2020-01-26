@@ -1,8 +1,11 @@
 package urlshort
 
 import (
-	"gopkg.in/yaml.v3"
+	"encoding/json"
+	"io/ioutil"
 	"net/http"
+
+	"gopkg.in/yaml.v3"
 )
 
 // MapHandler func
@@ -36,4 +39,25 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 type urlPath struct {
 	Path string `yaml:"path"`
 	URL  string `yaml:"url"`
+}
+
+func ParseJSONurl(jsonPath string) map[string]string {
+	jsonByte, err := ioutil.ReadFile(jsonPath)
+	if err != nil {
+		panic(err)
+	}
+	var dat = make([]jsonURLPath, 1)
+	if err := json.Unmarshal(jsonByte, &dat); err != nil {
+		panic(err)
+	}
+	var jsonmap = make(map[string]string)
+	for _, v := range dat {
+		jsonmap[v.Path] = v.URL
+	}
+	return jsonmap
+}
+
+type jsonURLPath struct {
+	Path string `json:"path"`
+	URL  string `json:"url"`
 }
