@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"p2/urlshort"
 )
@@ -34,6 +35,13 @@ func main() {
 
 	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
 
+	// read from yaml file
+	body, err := ioutil.ReadFile("url.yaml")
+	if err != nil {
+		panic(err)
+	}
+	yamlHandler, err := urlshort.YAMLHandler(body, mapHandler)
+
 	yaml := `
 - path: /urlshort
   url: https://github.com/gophercises/urlshort
@@ -41,14 +49,14 @@ func main() {
   url: https://github.com/gophercises/urlshort/tree/solution
 `
 
-	yamlHandler, err := urlshort.YAMLHandler([]byte(yaml), mapHandler)
+	yamlHandler1, err := urlshort.YAMLHandler([]byte(yaml), yamlHandler)
 	if err != nil {
 		fmt.Println(err)
 		panic(err)
 	}
 
 	fmt.Println("server starting on: 8000")
-	http.ListenAndServe(":8000", yamlHandler)
+	http.ListenAndServe(":8000", yamlHandler1)
 }
 
 func defaultMux() *http.ServeMux {
@@ -66,5 +74,5 @@ func hello(w http.ResponseWriter, r *http.Request) {
 }
 
 func hello2(w http.ResponseWriter, r *http.Request) {
-	http.Redirect(w, r, "https://www.huajiezhang.com", 301)
+	http.Redirect(w, r, "https://www.huajiezhang.com", http.StatusFound)
 }

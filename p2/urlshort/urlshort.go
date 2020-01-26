@@ -10,6 +10,7 @@ func MapHandler(pathsToUrls map[string]string, fallback http.Handler) http.Handl
 	return func(w http.ResponseWriter, r *http.Request) {
 		if v, ok := pathsToUrls[r.URL.Path]; ok {
 			http.Redirect(w, r, v, http.StatusFound)
+			return
 		}
 		fallback.ServeHTTP(w, r)
 	}
