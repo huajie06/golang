@@ -6,7 +6,9 @@ import (
 	"html/template"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
+	"strings"
 )
 
 type Option struct {
@@ -38,13 +40,36 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
-	for k, v := range *dat {
-		fmt.Println(k)
-		createHTML(k, tmpl, v)
+
+	mux := CustomizedMux()
+	maphandler := CustHandler(dat, tmpl, mux)
+	// for k, v := range *dat {
+	// 	createHTML(k, tmpl, v)
+	// }
+
+	fmt.Println("server starting on: 8000")
+	http.ListenAndServe(":8000", maphandler)
+
+}
+
+func CustomizedMux() *http.ServeMux {
+	mux := http.NewServeMux()
+	mux.HandleFunc("/", homePage)
+	return mux
+}
+
+func homePage(w http.ResponseWriter, r *http.Request) {
+	http.Redirect(w, r, "/intro", http.StatusFound)
+}
+
+func CustHandler(dat *map[string]Chapter, tmpl *template.Template, fallback http.Handler) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		if v, ok := (*dat)[strings.ToLower(strings.Trim(r.URL.Path, "/"))]; ok {
+			tmpl.Execute(w, v)
+			return
+		}
+		fallback.ServeHTTP(w, r)
 	}
-
-	// tmpl.Execute(os.Stdout, dat.Intro)
-
 }
 
 func createHTML(fname string, tmpl *template.Template, dt Chapter) {
