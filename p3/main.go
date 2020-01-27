@@ -4,6 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"os"
+	"text/template"
 )
 
 type JsonData struct {
@@ -77,12 +80,29 @@ func parseJson(s string) *JsonData {
 func main() {
 	dat := parseJson("cyoa.json")
 	fmt.Println(dat.Intro.Title)
-	for _, v := range dat.Intro.Story {
-		fmt.Println(v)
-	}
 	// fmt.Println(dat.Intro.Story)
-	for _, v := range dat.Intro.Options {
-		fmt.Println(v.Text, v.Arc)
-	}
 	// fmt.Println(dat.Intro.Options)
+	// for _, v := range dat.Intro.Story {
+	// 	fmt.Println(v)
+	// }
+
+	// for _, v := range dat.Intro.Options {
+	// 	fmt.Println(v.Text, v.Arc)
+	// }
+
+	tmpl, err := template.ParseFiles("t.html")
+	if err != nil {
+		panic(err)
+	}
+
+	f, err := os.Create("home.html")
+	if err != nil {
+		log.Print(err)
+		return
+	}
+	defer f.Close()
+
+	// tmpl.Execute(os.Stdout, dat.Intro)
+	tmpl.Execute(f, dat.Intro)
+
 }
