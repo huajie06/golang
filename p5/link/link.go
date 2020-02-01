@@ -1,6 +1,7 @@
 package link
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"net/url"
@@ -9,10 +10,12 @@ import (
 	"golang.org/x/net/html"
 )
 
+// ParseLink func... return []string
 func ParseLink(url string) []string {
 	var ret = []string{}
 	r, err := http.Get(url)
 	// fmt.Println("---", r.Request.URL, "---")
+
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -37,7 +40,15 @@ func ParseLink(url string) []string {
 		}
 	}
 	f(doc)
-	return dedupSlice(ret)
+	ret = dedupSlice(ret)
+
+	for i, v := range ret {
+		if strings.HasPrefix(v, "/") {
+			ret[i] = fmt.Sprintf("%s://%s%s", r.Request.URL.Scheme, r.Request.URL.Host, v)
+		}
+	}
+
+	return ret
 }
 
 func detDm(domain *url.URL, subdomain string) bool {
@@ -68,7 +79,7 @@ func dedupSlice(s []string) []string {
 	var ret = []string{}
 	for _, v := range s {
 		if _, ok := m[v]; ok {
-			m[v] += 1
+			m[v]++
 		} else {
 			m[v] = 1
 		}
@@ -78,4 +89,37 @@ func dedupSlice(s []string) []string {
 		ret = append(ret, k)
 	}
 	return ret
+}
+
+var parsedLink = []string{}
+var counter int = 0
+
+// LoopPage func
+func LoopPage(url []string, depth int) []string {
+
+	var l = []string{}
+
+	if counter >= depth {
+		return parsedLink
+	}
+
+	for _, v := range url {
+		if !(sliceContains(v, parsedLink)) {
+			l = append(l, ParseLink(v)...)
+			parsedLink = append(parsedLink, v)
+		}
+	}
+
+	counter++
+
+	return LoopPage(l, depth)
+}
+
+func sliceContains(s string, sl []string) bool {
+	for _, v := range sl {
+		if s == v {
+			return true
+		}
+	}
+	return false
 }
