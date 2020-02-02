@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"p5/link"
 )
@@ -8,12 +9,14 @@ import (
 func main() {
 	// ret := link.ParseLink("https://huajie06.github.io")
 	// ret := link.ParseLink("https://huajie06.github.io")
-	// pages := []string{"https://huajie06.github.io"}
-	pages := []string{"https://www.huajiezhang.com"}
-	ret := link.LoopPage(pages, 6)
+
+	urlFlag := flag.String("url", "https://huajie06.github.io", "the url that you wants to parse")
+	maxDepth := flag.Int("depth", 4, "the max depth to pages wants to parse")
+	flag.Parse()
+
+	pages := []string{*urlFlag}
+	ret := link.LoopPage(pages, *maxDepth)
 	for i, v := range ret {
 		fmt.Println(i, v)
 	}
-
-	// fmt.Println(link.ParseLink("https://www.huajiezhang.com/explore"))
 }

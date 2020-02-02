@@ -23,7 +23,7 @@ func ParseLink(url string) []string {
 
 	doc, err := html.Parse(r.Body)
 	if err != nil {
-		log.Println(err)
+		log.Fatal(err)
 	}
 
 	var f func(*html.Node)
