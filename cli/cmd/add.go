@@ -1,7 +1,8 @@
 package cmd
 
 import (
-	"fmt"
+	"log"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -15,6 +16,9 @@ var add = &cobra.Command{
 	Short: "Add a new task to your TODO list",
 	Long:  "some stuff",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println(args)
+		err := writeTaskToFile(fname, strings.Join(args, ""))
+		if err != nil {
+			log.Println(err)
+		}
 	},
 }
