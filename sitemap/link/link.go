@@ -115,6 +115,7 @@ func LoopPage(url []string, depth int) []string {
 	return LoopPage(l, depth)
 }
 
+// this is not optimal
 func sliceContains(s string, sl []string) bool {
 	for _, v := range sl {
 		if s == v {

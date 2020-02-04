@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"p5/link"
+	"sitemap/link"
 )
 
 func main() {

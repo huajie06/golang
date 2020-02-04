@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
-	"p2/urlshort"
+	"parselink/urlshort"
 )
 
 // S1 ...
