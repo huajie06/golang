@@ -10,9 +10,9 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "task",
 	Short: "task is a simple task management cmd",
-	Run: func(cmd *cobra.Command, args []string) {
-
-	},
+	// comment out the follow will silence the flag options
+	// Run: func(cmd *cobra.Command, args []string) {
+	// },
 }
 
 func Execute() {
