@@ -9,6 +9,10 @@ import (
 )
 
 func init() {
+	err := db.Init()
+	if err != nil {
+		log.Println(err)
+	}
 	rootCmd.AddCommand(db_add)
 }
 
@@ -18,7 +22,7 @@ var db_add = &cobra.Command{
 	Long:  "some stuff",
 	Run: func(cmd *cobra.Command, args []string) {
 
-		err := db.WriteToDB(strings.Join(args[:1], ""), strings.Join(args[1:], ""))
+		err := db.WriteToDB(strings.Join(args, " "))
 
 		if err != nil {
 			log.Println(err)
