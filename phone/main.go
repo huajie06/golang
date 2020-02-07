@@ -9,6 +9,8 @@ import (
 	"strings"
 
 	"github.com/go-sql-driver/mysql"
+	"github.com/jinzhu/gorm"
+	_ "github.com/jinzhu/gorm/dialects/sqlite"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/crypto/ssh/knownhosts"
 )
@@ -77,18 +79,21 @@ func main() {
 
 		fmt.Printf("---Successfully connected to the db---\n")
 
-		drop_tb()
+		// drop_tb()
 
-		create_tb()
+		// create_tb()
 
-		insert_one()
+		// insert_one()
 
 		// mult_insert()
 
-		use_tx()
+		// use_tx()
 
-		select_query()
+		// select_query()
+
 	}
+
+	useGorm()
 }
 
 func insert_one() {
@@ -192,4 +197,52 @@ func numOnly(s string) string {
 		}
 	}
 	return ret
+}
+
+type Phone struct {
+	// gorm.Model
+	Id    int    `sql:"AUTO_INCREMENT"`
+	Phone string `sql:"varchar(10)"`
+}
+
+func useGorm() {
+	db, err := gorm.Open("sqlite3", "phone.db")
+	if err != nil {
+		log.Println(err)
+	}
+	defer db.Close()
+
+	db.AutoMigrate(&Phone{})
+
+	tx := db.Begin()
+	// defer tx.Rollback()
+
+	for _, v := range strings.Split(phone, "\n") {
+		if err = tx.Create(&Phone{Phone: numOnly(v)}).Error; err != nil {
+			tx.Rollback()
+			log.Println(err)
+		}
+	}
+	tx.Commit()
+}
+
+func testUseGorm() {
+	db, err := gorm.Open("sqlite3", "test.db")
+	if err != nil {
+		log.Println(err)
+	}
+	defer db.Close()
+
+	db.AutoMigrate(&Phone{}) // this is needed???
+
+	// p := Phone{Phone: "125"}
+	// db.Create(&p)
+
+	var p0 Phone
+	db.First(&p0)
+	fmt.Println(p0)
+
+	var p []Phone
+	db.Find(&p)
+	fmt.Println(p)
 }
