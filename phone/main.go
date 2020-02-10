@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"database/sql"
 	"fmt"
 	"io/ioutil"
@@ -190,13 +191,13 @@ func select_query() {
 }
 
 func numOnly(s string) string {
-	var ret string
+	var ret bytes.Buffer
 	for _, v := range s {
 		if v >= '0' && v <= '9' {
-			ret += string(v)
+			ret.WriteRune(v)
 		}
 	}
-	return ret
+	return ret.String()
 }
 
 type Phone struct {
