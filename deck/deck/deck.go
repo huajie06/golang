@@ -17,7 +17,7 @@ func New() []Card {
 	var ret = []Card{}
 	var suit = []string{"spade", "diamond", "club", "heart"}
 	for _, v := range suit {
-		for i := 1; i <= 3; i++ {
+		for i := 1; i <= 2; i++ {
 			ret = append(ret, Card{i, v})
 		}
 	}
@@ -32,24 +32,25 @@ func ShuffleCard(cards []Card) {
 }
 
 func SortCard(cards []Card) {
-	// sort.Slice(cards, func(i, j int) bool {
-	// 	switch {
-	// 	case cards[j].Suit == "spade" && cards[i].Suit == "spade" && cards[i].Value > cards[j].Value:
-	// 		return true
-	// 	case cards[j].Suit == "diamond" && cards[i].Suit == "diamond" && cards[i].Value > cards[j].Value:
-	// 		return true
-	// 	case cards[j].Suit == "club" && cards[i].Suit == "club" && cards[i].Value > cards[j].Value:
-	// 		return true
-	// 	case cards[j].Suit == "heart" && cards[i].Suit == "heart" && cards[i].Value > cards[j].Value:
-	// 		return true
-	// 	default:
-	// 		return false
-	// 	}
-
-	// })
-
+	mp := map[string]int{"spade": 1, "diamond": 2, "club": 3, "heart": 4}
 	sort.Slice(cards, func(i, j int) bool {
-		return cards[i].Suit > cards[j].Suit
-	})
+		if mp[cards[i].Suit] < mp[cards[j].Suit] {
+			return true
+		}
 
+		if mp[cards[i].Suit] > mp[cards[j].Suit] {
+			return false
+		}
+		return cards[i].Value < cards[j].Value
+	})
+}
+
+func DelCard(v int, suit string, cards *[]Card) {
+	var ind int
+	for i, k := range *cards {
+		if k.Suit == suit && v == k.Value {
+			ind = i
+		}
+	}
+	*cards = append((*cards)[:ind], (*cards)[ind+1:]...)
 }
