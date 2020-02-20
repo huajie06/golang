@@ -59,6 +59,10 @@ import (
 )
 
 type Direction int
+// type A int
+// var a A = 1
+// var b int = 1
+// a and b are the same, but they are with different type name
 
 const (
     North Direction = iota

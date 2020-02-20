@@ -6,6 +6,8 @@ import "fmt"
 
 type Suit uint8
 
+var suits = []Suit{Spade, Diamond, Club, Heart}
+
 const (
 	Spade Suit = iota
 	Diamond

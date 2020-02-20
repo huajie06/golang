@@ -12,26 +12,29 @@ const (
 )
 
 func main() {
-	renameFile()
-	listPath(test_path)
+	//renameFile("n_008.txt", "n_1118.txt")
+	//renameFile("n_1118.txt", "n_008.txt")
+	listPath(test_path, "*")
 }
 
-func renameFile() {
+func renameFile(findPattern, newName string) {
 	err := filepath.Walk(test_path, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			log.Println(err)
 		}
-		pttn := "n_008.txt"
-		new_name := "n_1118.txt"
-		if t, _ := filepath.Match(pttn, info.Name()); t {
+
+		// pttn := "n_008.txt"
+		// new_name := "n_1118.txt"
+
+		if t, _ := filepath.Match(findPattern, info.Name()); t && !(info.IsDir()) {
 			dir, _ := filepath.Split(path)
-			newPath := filepath.Join(dir, new_name)
+			newPath := filepath.Join(dir, newName)
 
 			err := os.Rename(path, newPath)
 			if err != nil {
 				log.Println(err)
 			}
-
+			fmt.Println("rename file succesfully")
 			// fmt.Println(path)
 			// fmt.Println(newPath)
 		}
@@ -42,17 +45,21 @@ func renameFile() {
 	}
 }
 
-func listPath(p string) {
+func listPath(p, pattern string) {
+
 	err := filepath.Walk(p, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			log.Println(err)
 		}
-		fmt.Println(path)
+
+		if t, _ := filepath.Match(pattern, info.Name()); t && !(info.IsDir()) {
+			fmt.Println(path)
+		}
+
 		return nil
 	})
 
 	if err != nil {
 		log.Println(err)
 	}
-
 }

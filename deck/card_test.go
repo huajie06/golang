@@ -8,6 +8,7 @@ func ExampleCard() {
 	fmt.Println(Card{Rank: Nine, Suit: Diamond})
 	fmt.Println(Card{Rank: Jack, Suit: Club})
 	fmt.Println(Card{Suit: Joker})
+	fmt.Println(Card{Rank: 1, Suit: 1})
 
 	// Output:
 	// Ace of Hearts
@@ -15,4 +16,5 @@ func ExampleCard() {
 	// Nine of Diamonds
 	// Jack of Clubs
 	// Joker
+	// Ace of Diamonds
 }
