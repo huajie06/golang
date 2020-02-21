@@ -18,25 +18,23 @@
 	    <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
 	</div>
 
-	    <table class="table">
-	    <thead>
-		<tr>
-		<th scope="col">Title</th>
-		<th scope="col">Source</th>
-		</tr>
-	    </thead>
-	    <tbody>
-
+	    <ul class="list-group list-unstyled">
 		{{range .}}
-		<tr>
-		    <td>
+		    <li class="list-group-item list-group-item-action">
 			<a href="{{.Url}}" class="text-decoration-none" target="_blank">
-			    {{.Title}} 
+			    {{.Title}}
 			</a>
-		    </td>
-		    <td> {{.Source}}</td>
-		</tr>
+			<em>{{.Source}}</em>
+		    </li>
 		{{end}}
-	    </tbody>
-	</div>
+	    </ul>
+
+
+	    <div class="card text-center mt-5 mb-5">
+		<div class="card-header">
+		    Thanks.
+		</div>
+	    </div>
+
+    </div>
 </html
