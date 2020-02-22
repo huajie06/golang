@@ -17,18 +17,23 @@
 	    <hr class="my-4">
 	    <p>It uses utility classes for typography and spacing to space content out within the larger container.</p>
 	</div>
-
-	    <ul class="list-group list-unstyled">
-		{{range .}}
-		    <li class="list-group-item list-group-item-action">
+	<div class="container">
+	    <ol class="list-group">
+		{{range .Item}}
+		<!-- <li class="list-group-item list-group-item-action"> -->
+		    <li class="list-group-item-action">
 			<a href="{{.Url}}" class="text-decoration-none" target="_blank">
 			    {{.Title}}
 			</a>
 			<em>{{.Source}}</em>
 		    </li>
 		{{end}}
-	    </ul>
+	    </ol>
+	</div>
 
+	    <div class="container m-4">
+		<p>Time used {{.Time}}</p>
+	    </div>
 
 	    <div class="card text-center mt-5 mb-5">
 		<div class="card-header">

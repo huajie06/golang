@@ -7,8 +7,10 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"sort"
 	"strings"
 	"text/template"
+	"time"
 )
 
 const apiBase string = "https://hacker-news.firebaseio.com/v0/"
@@ -24,11 +26,12 @@ type story struct {
 
 type storyHandle struct {
 	tmpl *template.Template
-	s    []story
+	Item []story
+	Time time.Duration
 }
 
 func (s storyHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	err := s.tmpl.Execute(w, s.s)
+	err := s.tmpl.Execute(w, s)
 
 	if err != nil {
 		http.Error(w, "page not found", http.StatusNotFound)
@@ -37,10 +40,11 @@ func (s storyHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 }
 
 func (s storyHandle) debug() {
-	s.tmpl.Execute(os.Stdout, s.s)
+	s.tmpl.Execute(os.Stdout, s)
 }
 
 func main() {
+	start := time.Now()
 	// ids := getTopStory(5)
 	// fmt.Println(ids)
 
@@ -50,17 +54,17 @@ func main() {
 
 	//dat := []story{{Url: "abc", Title: "yeah!!!"}, {Url: "abc", Title: "yeah!!!"}}
 
-	ids := getTopStory(20)
+	ids := getTopStory(40)
 	dat := returnIds(ids)
 
 	tmpl := template.Must(template.ParseFiles("template.html"))
-	h := storyHandle{tmpl, dat}
+	h := storyHandle{tmpl, dat, time.Now().Sub(start)}
 
 	m := http.NewServeMux()
 	m.Handle("/", h)
 	http.ListenAndServe(":8000", m)
 
-	// h.debug()
+	//h.debug()
 }
 
 func getTopStory(numOfItems int) []int {
@@ -87,9 +91,30 @@ func getTopStory(numOfItems int) []int {
 }
 
 func returnIds(ids []int) []story {
-	ret := []story{}
-	for _, v := range ids {
-		ret = append(ret, getById(v))
+	type chResult struct {
+		s   story
+		ind int
+	}
+
+	storyCh := make(chan chResult)
+
+	for i, v := range ids {
+		go func(i, v int) {
+			storyCh <- chResult{s: getById(v), ind: i}
+		}(i, v)
+	}
+
+	var results []chResult
+	for i := 0; i < len(ids); i++ {
+		results = append(results, <-storyCh)
+	}
+	sort.Slice(results, func(i, j int) bool {
+		return results[i].ind < results[j].ind
+	})
+
+	var ret []story
+	for i := 0; i < len(ids); i++ {
+		ret = append(ret, results[i].s)
 	}
 	return ret
 }
