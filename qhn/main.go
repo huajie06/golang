@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"os"
 	"sort"
 	"strings"
 	"text/template"
@@ -25,46 +24,40 @@ type story struct {
 }
 
 type storyHandle struct {
-	tmpl *template.Template
 	Item []story
 	Time time.Duration
 }
 
-func (s storyHandle) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	err := s.tmpl.Execute(w, s)
+func main() {
+	h := hnHandle()
 
-	if err != nil {
-		http.Error(w, "page not found", http.StatusNotFound)
+	m := http.NewServeMux()
+	m.Handle("/", h)
+
+	fmt.Println("site started at port:8000.")
+	if err := http.ListenAndServe(":8000", m); err != nil {
+		log.Println(err)
 	}
 
 }
 
-func (s storyHandle) debug() {
-	s.tmpl.Execute(os.Stdout, s)
-}
-
-func main() {
-	start := time.Now()
-	// ids := getTopStory(5)
-	// fmt.Println(ids)
-
-	// var ids = []int{22378679, 22380380, 22378555, 22376794, 22380364, 22379969}
-	// ret := returnIds(ids)
-	// fmt.Println(ret)
-
-	//dat := []story{{Url: "abc", Title: "yeah!!!"}, {Url: "abc", Title: "yeah!!!"}}
-
-	ids := getTopStory(40)
-	dat := returnIds(ids)
+func hnHandle() http.HandlerFunc {
 
 	tmpl := template.Must(template.ParseFiles("template.html"))
-	h := storyHandle{tmpl, dat, time.Now().Sub(start)}
 
-	m := http.NewServeMux()
-	m.Handle("/", h)
-	http.ListenAndServe(":8000", m)
+	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
 
-	//h.debug()
+		ids := getTopStory(30)
+		dat := returnIds(ids)
+
+		s := storyHandle{dat, time.Now().Sub(start)}
+
+		err := tmpl.Execute(w, s)
+		if err != nil {
+			http.Error(w, "page not found", http.StatusNotFound)
+		}
+	}
 }
 
 func getTopStory(numOfItems int) []int {
@@ -120,7 +113,6 @@ func returnIds(ids []int) []story {
 }
 
 func getById(id int) story {
-	//url := apiBase + "item/" + strconv.Itoa(id) + ".json"
 	url := fmt.Sprintf("%sitem/%d.json", apiBase, id)
 
 	r, err := http.Get(url)
@@ -135,17 +127,17 @@ func getById(id int) story {
 		log.Println(err)
 	}
 
-	s1 := story{}
-	err = json.Unmarshal(b, &s1)
+	ret := story{}
+	err = json.Unmarshal(b, &ret)
 	if err != nil {
 		log.Println(err)
 	}
 
-	if len(strings.Split(s1.Url, "/")) >= 2 {
-		s1.Source = strings.Split(s1.Url, "/")[2]
+	if len(strings.Split(ret.Url, "/")) >= 2 {
+		ret.Source = strings.Split(ret.Url, "/")[2]
 	}
 
-	return s1
+	return ret
 
-	//fmt.Println(s1)
+	//fmt.Println(ret)
 }
