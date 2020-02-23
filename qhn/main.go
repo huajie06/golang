@@ -38,7 +38,17 @@ func main() {
 	if err := http.ListenAndServe(":8000", m); err != nil {
 		log.Println(err)
 	}
+}
 
+func debug() {
+	ids, err := getTopStory(5)
+	if err != nil {
+		log.Println(err)
+	}
+	fmt.Println(ids)
+
+	dat := returnIds(ids)
+	fmt.Println(dat)
 }
 
 func hnHandle() http.HandlerFunc {
@@ -48,52 +58,61 @@ func hnHandle() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
-		ids := getTopStory(30)
+		ids, err := getTopStory(30)
+		if err != nil {
+			http.Error(w, "page not found", http.StatusNotFound)
+		}
+
 		dat := returnIds(ids)
 
 		s := storyHandle{dat, time.Now().Sub(start)}
 
-		err := tmpl.Execute(w, s)
+		err = tmpl.Execute(w, s)
 		if err != nil {
 			http.Error(w, "page not found", http.StatusNotFound)
 		}
 	}
 }
 
-func getTopStory(numOfItems int) []int {
+func getTopStory(numOfItems int) ([]int, error) {
 	var err error
 
 	url := fmt.Sprintf("%stopstories.json", apiBase)
 	r, err := http.Get(url)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 
 	var ids []int
 	b := json.NewDecoder(r.Body)
 	defer r.Body.Close()
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
 
 	err = b.Decode(&ids)
 	if err != nil {
-		log.Println(err)
+		return nil, err
 	}
-	return ids[:numOfItems]
+	return ids[:numOfItems], nil
 }
 
 func returnIds(ids []int) []story {
 	type chResult struct {
 		s   story
 		ind int
+		err error
 	}
 
 	storyCh := make(chan chResult)
 
 	for i, v := range ids {
 		go func(i, v int) {
-			storyCh <- chResult{s: getById(v), ind: i}
+			s, err := getById(v)
+			if err != nil {
+				storyCh <- chResult{err: err}
+			}
+			storyCh <- chResult{s: s, ind: i}
 		}(i, v)
 	}
 
@@ -107,37 +126,39 @@ func returnIds(ids []int) []story {
 
 	var ret []story
 	for i := 0; i < len(ids); i++ {
+		if results[i].err != nil {
+			continue
+		}
 		ret = append(ret, results[i].s)
 	}
 	return ret
 }
 
-func getById(id int) story {
+func getById(id int) (story, error) {
 	url := fmt.Sprintf("%sitem/%d.json", apiBase, id)
+	ret := story{}
 
 	r, err := http.Get(url)
 	if err != nil {
-		log.Println(err)
+		return ret, err
 	}
 
 	b, err := ioutil.ReadAll(r.Body)
 	defer r.Body.Close()
-
 	if err != nil {
-		log.Println(err)
+		return ret, err
 	}
 
-	ret := story{}
 	err = json.Unmarshal(b, &ret)
 	if err != nil {
-		log.Println(err)
+		return ret, err
 	}
 
 	if len(strings.Split(ret.Url, "/")) >= 2 {
 		ret.Source = strings.Split(ret.Url, "/")[2]
 	}
 
-	return ret
+	return ret, nil
 
 	//fmt.Println(ret)
 }
