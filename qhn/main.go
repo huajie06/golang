@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -9,6 +10,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"syscall"
 	"text/template"
 	"time"
 )
@@ -30,7 +32,8 @@ type storyHandle struct {
 }
 
 func main() {
-	h := hnHandle()
+	tmpl := template.Must(template.ParseFiles("template.html"))
+	h := hnHandle(tmpl, 30)
 
 	m := http.NewServeMux()
 	m.Handle("/", h)
@@ -42,43 +45,30 @@ func main() {
 }
 
 func debug() {
-	ids, err := getTopStory(5)
-	if err != nil {
-		log.Println(err)
-	}
-	fmt.Println(ids)
-
-	dat := returnIds(ids)
+	dat := getIds(5)
 	fmt.Println(dat)
 }
 
-func hnHandle() http.HandlerFunc {
-	tmpl := template.Must(template.ParseFiles("template.html"))
+func hnHandle(tmpl *template.Template, numStories int) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-
-		ids, err := getTopStory(30)
-		if err != nil {
-			http.Error(w, "page not found", http.StatusInternalServerError)
-		}
-
-		dat := returnCacheIds(ids)
-
+		// dat := cs.returnCacheIds()
+		dat := returnCacheIds(numStories)
 		s := storyHandle{dat, time.Now().Sub(start)}
 
-		err = tmpl.Execute(w, s)
+		err := tmpl.Execute(w, s)
 		if err != nil {
-			// the following line will sometimes got the
-			// error
-
 			// 2020/02/23 22:21:45 http: superfluous
 			// response.WriteHeader call from
 			// main.hnHandle.func1 (main.go:73)
-
 			// the cause is -> write tcp
 			// [::1]:8000->[::1]:64515: write: broken pipe
 
-			http.Error(w, "page not found", http.StatusInternalServerError)
+			// filter out the borken pip error
+			if !(errors.Is(err, syscall.EPIPE)) {
+				log.Println(err)
+				http.Error(w, "page not found", http.StatusInternalServerError)
+			}
 			return
 		}
 	}
@@ -108,24 +98,44 @@ func getTopStory(numOfItems int) ([]int, error) {
 	return ids[:numOfItems], nil
 }
 
-var (
+type cacheStory struct {
+	numStory        int
 	cache           []story
 	cacheExpiration time.Time
 	cacheMutext     sync.Mutex
+}
+
+func (cs *cacheStory) returnCacheIds() []story {
+	cs.cacheMutext.Lock()
+	defer cs.cacheMutext.Unlock()
+
+	if time.Now().Sub(cs.cacheExpiration) < 0 {
+		return cs.cache
+	}
+	cs.cache = getIds(cs.numStory)
+	cs.cacheExpiration = time.Now().Add(1 * time.Second)
+	return cs.cache
+}
+
+var (
+	cacheMutext     sync.Mutex
+	cacheExpiration time.Time
+	cache           []story
 )
 
-func returnCacheIds(ids []int) []story {
+func returnCacheIds(num int) []story {
 	cacheMutext.Lock()
 	defer cacheMutext.Unlock()
+
 	if time.Now().Sub(cacheExpiration) < 0 {
 		return cache
 	}
-	cache = returnIds(ids)
-	cacheExpiration = time.Now().Add(20 * time.Second)
+	cache = getIds(num)
+	cacheExpiration = time.Now().Add(40 * time.Second)
 	return cache
 }
 
-func returnIds(ids []int) []story {
+func getIds(n int) []story {
 	type chResult struct {
 		s   story
 		ind int
@@ -133,6 +143,11 @@ func returnIds(ids []int) []story {
 	}
 
 	storyCh := make(chan chResult)
+
+	ids, err := getTopStory(n)
+	if err != nil {
+		log.Println(err)
+	}
 
 	for i, v := range ids {
 		go func(i, v int) {
