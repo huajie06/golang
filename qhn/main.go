@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"sort"
 	"strings"
+	"sync"
 	"text/template"
 	"time"
 )
@@ -52,24 +53,33 @@ func debug() {
 }
 
 func hnHandle() http.HandlerFunc {
-
 	tmpl := template.Must(template.ParseFiles("template.html"))
-
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
 		ids, err := getTopStory(30)
 		if err != nil {
-			http.Error(w, "page not found", http.StatusNotFound)
+			http.Error(w, "page not found", http.StatusInternalServerError)
 		}
 
-		dat := returnIds(ids)
+		dat := returnCacheIds(ids)
 
 		s := storyHandle{dat, time.Now().Sub(start)}
 
 		err = tmpl.Execute(w, s)
 		if err != nil {
-			http.Error(w, "page not found", http.StatusNotFound)
+			// the following line will sometimes got the
+			// error
+
+			// 2020/02/23 22:21:45 http: superfluous
+			// response.WriteHeader call from
+			// main.hnHandle.func1 (main.go:73)
+
+			// the cause is -> write tcp
+			// [::1]:8000->[::1]:64515: write: broken pipe
+
+			http.Error(w, "page not found", http.StatusInternalServerError)
+			return
 		}
 	}
 }
@@ -77,7 +87,8 @@ func hnHandle() http.HandlerFunc {
 func getTopStory(numOfItems int) ([]int, error) {
 	var err error
 
-	url := fmt.Sprintf("%stopstories.json", apiBase)
+	url := fmt.Sprintf("%snewstories.json", apiBase)
+	//url := fmt.Sprintf("%stopstories.json", apiBase)
 	r, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -95,6 +106,23 @@ func getTopStory(numOfItems int) ([]int, error) {
 		return nil, err
 	}
 	return ids[:numOfItems], nil
+}
+
+var (
+	cache           []story
+	cacheExpiration time.Time
+	cacheMutext     sync.Mutex
+)
+
+func returnCacheIds(ids []int) []story {
+	cacheMutext.Lock()
+	defer cacheMutext.Unlock()
+	if time.Now().Sub(cacheExpiration) < 0 {
+		return cache
+	}
+	cache = returnIds(ids)
+	cacheExpiration = time.Now().Add(20 * time.Second)
+	return cache
 }
 
 func returnIds(ids []int) []story {
@@ -135,10 +163,10 @@ func returnIds(ids []int) []story {
 }
 
 func getById(id int) (story, error) {
-	url := fmt.Sprintf("%sitem/%d.json", apiBase, id)
+	targetUrl := fmt.Sprintf("%sitem/%d.json", apiBase, id)
 	ret := story{}
 
-	r, err := http.Get(url)
+	r, err := http.Get(targetUrl)
 	if err != nil {
 		return ret, err
 	}
@@ -155,10 +183,8 @@ func getById(id int) (story, error) {
 	}
 
 	if len(strings.Split(ret.Url, "/")) >= 2 {
-		ret.Source = strings.Split(ret.Url, "/")[2]
+		ret.Source = strings.TrimPrefix(strings.Split(ret.Url, "/")[2], "www.")
 	}
 
 	return ret, nil
-
-	//fmt.Println(ret)
 }
