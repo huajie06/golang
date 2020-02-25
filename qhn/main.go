@@ -26,35 +26,77 @@ type story struct {
 	Url    string `json:"url"`
 }
 
-type storyHandle struct {
+type templateData struct {
 	Item []story
 	Time time.Duration
 }
 
 func main() {
 	tmpl := template.Must(template.ParseFiles("template.html"))
-	h := hnHandle(tmpl, 30)
+	h := topStoryHandle(tmpl, 30)
+	h1 := newStoryHandle(tmpl, 30)
 
 	m := http.NewServeMux()
 	m.Handle("/", h)
+	m.Handle("/hello", h1)
 
 	fmt.Println("site started at port:8000.")
 	if err := http.ListenAndServe(":8000", m); err != nil {
 		log.Println(err)
 	}
+
 }
 
 func debug() {
-	dat := getIds(5)
+	ids, _ := getNewStory(30)
+	dat := getIds(ids)
 	fmt.Println(dat)
 }
 
-func hnHandle(tmpl *template.Template, numStories int) http.HandlerFunc {
+type cacheStory struct {
+	numStory        int
+	cache           []story
+	cacheExpiration time.Time
+	cacheMutext     sync.Mutex
+}
+
+func (cs *cacheStory) returnCacheIds() []story {
+	cs.cacheMutext.Lock()
+	defer cs.cacheMutext.Unlock()
+
+	if time.Now().Sub(cs.cacheExpiration) < 0 {
+		return cs.cache
+	}
+	ids, _ := getNewStory(cs.numStory)
+	cs.cache = getIds(ids)
+	cs.cacheExpiration = time.Now().Add(10 * time.Second)
+	return cs.cache
+}
+
+func newStoryHandle(tmpl *template.Template, numStories int) http.HandlerFunc {
+
+	cs := cacheStory{numStory: numStories}
 	return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
-		// dat := cs.returnCacheIds()
+		dat := cs.returnCacheIds()
+		s := templateData{dat, time.Now().Sub(start)}
+
+		err := tmpl.Execute(w, s)
+		if err != nil {
+			if !(errors.Is(err, syscall.EPIPE)) {
+				log.Println(err)
+				http.Error(w, "page not found", http.StatusInternalServerError)
+			}
+			return
+		}
+	}
+}
+
+func topStoryHandle(tmpl *template.Template, numStories int) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		start := time.Now()
 		dat := returnCacheIds(numStories)
-		s := storyHandle{dat, time.Now().Sub(start)}
+		s := templateData{dat, time.Now().Sub(start)}
 
 		err := tmpl.Execute(w, s)
 		if err != nil {
@@ -74,11 +116,9 @@ func hnHandle(tmpl *template.Template, numStories int) http.HandlerFunc {
 	}
 }
 
-func getTopStory(numOfItems int) ([]int, error) {
+func getNewStory(numOfItems int) ([]int, error) {
 	var err error
-
 	url := fmt.Sprintf("%snewstories.json", apiBase)
-	//url := fmt.Sprintf("%stopstories.json", apiBase)
 	r, err := http.Get(url)
 	if err != nil {
 		return nil, err
@@ -98,23 +138,26 @@ func getTopStory(numOfItems int) ([]int, error) {
 	return ids[:numOfItems], nil
 }
 
-type cacheStory struct {
-	numStory        int
-	cache           []story
-	cacheExpiration time.Time
-	cacheMutext     sync.Mutex
-}
-
-func (cs *cacheStory) returnCacheIds() []story {
-	cs.cacheMutext.Lock()
-	defer cs.cacheMutext.Unlock()
-
-	if time.Now().Sub(cs.cacheExpiration) < 0 {
-		return cs.cache
+func getTopStory(numOfItems int) ([]int, error) {
+	var err error
+	url := fmt.Sprintf("%stopstories.json", apiBase)
+	r, err := http.Get(url)
+	if err != nil {
+		return nil, err
 	}
-	cs.cache = getIds(cs.numStory)
-	cs.cacheExpiration = time.Now().Add(1 * time.Second)
-	return cs.cache
+
+	var ids []int
+	b := json.NewDecoder(r.Body)
+	defer r.Body.Close()
+	if err != nil {
+		return nil, err
+	}
+
+	err = b.Decode(&ids)
+	if err != nil {
+		return nil, err
+	}
+	return ids[:numOfItems], nil
 }
 
 var (
@@ -130,12 +173,13 @@ func returnCacheIds(num int) []story {
 	if time.Now().Sub(cacheExpiration) < 0 {
 		return cache
 	}
-	cache = getIds(num)
+	ids, _ := getTopStory(num)
+	cache = getIds(ids)
 	cacheExpiration = time.Now().Add(40 * time.Second)
 	return cache
 }
 
-func getIds(n int) []story {
+func getIds(ids []int) []story {
 	type chResult struct {
 		s   story
 		ind int
@@ -143,11 +187,6 @@ func getIds(n int) []story {
 	}
 
 	storyCh := make(chan chResult)
-
-	ids, err := getTopStory(n)
-	if err != nil {
-		log.Println(err)
-	}
 
 	for i, v := range ids {
 		go func(i, v int) {
