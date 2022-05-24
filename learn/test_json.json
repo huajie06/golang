@@ -1,0 +1,16 @@
+{
+    "author": "hzhang",
+    "copyright": "some copyright",
+    "arcs": [
+        {
+            "date":"01/01/2021",
+            "content": "some content"
+        }
+        ,
+        {
+            "date": "01/01/2022",
+            "content": "some content"
+        }
+
+    ]
+}

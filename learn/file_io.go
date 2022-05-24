@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"encoding/json"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -126,5 +127,31 @@ dkfwld
 		fmt.Println(string(line1))
 	}
 	fmt.Println("====section end======")
+
+	//========================= section ==========================
+	type Arc struct {
+		Date, Content string
+	}
+
+	type topLevel struct {
+		Author, Copyright string
+		Arcs              []Arc `json:Arc`
+	}
+
+	fmt.Println("========json=============")
+	jsonFile, err := os.Open("./test_json.json")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var jData topLevel
+	if jerr := json.NewDecoder(jsonFile).Decode(&jData); jerr != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(jData)
+	for _, v := range jData.Arcs {
+		fmt.Println(v)
+	}
 
 }
