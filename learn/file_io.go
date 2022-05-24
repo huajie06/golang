@@ -72,6 +72,7 @@ func main() {
 	fmt.Println(strs)
 	fmt.Println()
 	fmt.Println(string(strs))
+	fmt.Println("====section end======")
 
 	//========================= section ==========================
 	someLongStr := `hahahah test new day
@@ -88,17 +89,21 @@ dkfwld
 		fmt.Println(e)
 	}
 	fmt.Println(r)
+	fmt.Println("====section end======")
 
 	//========================= section ==========================
 	b1, e := io.ReadAll(io_r)
 	if e != nil {
 		log.Fatal(e)
 	}
-
+	fmt.Println("use io.ReadAll")
 	fmt.Println(string(b1))
-
+	fmt.Println("====section end======")
 	//========================= section ==========================
-	nr := bufio.NewReader(io_r)
+	// here io_r already end of the file
+	fmt.Println("io.Reader new!")
+	var io_r1 io.Reader = strings.NewReader(someLongStr)
+	nr := bufio.NewReader(io_r1)
 	p := make([]byte, 5000)
 	n, e := nr.Read(p)
 	if e != nil {
@@ -106,10 +111,10 @@ dkfwld
 	}
 	fmt.Println(n)
 	fmt.Println(string(p[:n]))
-
+	fmt.Println("====section end======")
 	//========================= section ==========================
-	nr1 := bufio.NewReader(io_r)
 
+	nr1 := bufio.NewReader(strings.NewReader(someLongStr))
 	for {
 		line1, _, e := nr1.ReadLine()
 		if e == io.EOF {
@@ -120,5 +125,6 @@ dkfwld
 		}
 		fmt.Println(string(line1))
 	}
+	fmt.Println("====section end======")
 
 }

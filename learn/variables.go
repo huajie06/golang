@@ -24,6 +24,7 @@ func main() {
 	fmt.Println("===========")
 
 	//========================= section ==========================
+	// only these many types
 	// uint8/16/32
 	// int8/16/32
 	// float32/float64
