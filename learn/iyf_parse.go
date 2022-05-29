@@ -7,6 +7,10 @@ import (
 	"os"
 )
 
+type MovieInfo struct {
+	Region, Language, AddTime, DNRate string
+}
+
 type Iyf struct {
 	Ret           int    `json:"ret"`
 	Data          Data   `json:"data"`
@@ -64,6 +68,8 @@ func main() {
 		log.Fatal(err)
 	}
 
+	movieList := map[string]MovieInfo{}
+
 	var ret Iyf
 	if jerr := json.NewDecoder(f).Decode(&ret); jerr != nil {
 		log.Fatal(jerr)
@@ -71,8 +77,16 @@ func main() {
 
 	info := ret.Data.Info
 	result := info[0].Result
-	for i, v := range result {
-		fmt.Println("=====")
-		fmt.Printf("index:%v, langues:%v, region:%v, name:%v, rate:%v\n", i, v.Lang, v.Regional, v.Title, v.Rating)
+	for _, v := range result {
+
+		_, found := movieList[v.Title]
+		if found == false {
+			movieList[v.Title] = MovieInfo{v.Regional, v.Lang, v.AddTime, v.Rating}
+		}
 	}
+
+	for key, value := range movieList {
+		fmt.Printf("key: %v, value: %v\n", key, value)
+	}
+
 }
