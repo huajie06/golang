@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
@@ -77,6 +78,7 @@ type Data struct {
 
 type doubanIndividualMovie struct {
 	SearchedTitle   string
+	ReturnReason    string
 	Name            string
 	Url             string
 	DatePublished   string          `json:datePublished`
@@ -229,13 +231,14 @@ func dbSearch(qs string) (string, error) {
 	return strings.Split(sid, "\n")[0], nil
 }
 
-func doubanGetIndMovie(movieID string) (doubanIndividualMovie, error) {
+func doubanGetIndMovie(qs, movieID string) (doubanIndividualMovie, error) {
 	fmt.Printf("==========%v=========\n", movieID)
+	fmt.Printf("==========%v=========\n", qs)
 
 	dbMovieUrl := fmt.Sprintf("https://movie.douban.com/subject/%v/", movieID)
 	u, err := url.Parse(dbMovieUrl)
 	if err != nil {
-		return doubanIndividualMovie{}, err
+		return doubanIndividualMovie{SearchedTitle: qs, Url: movieID, ReturnReason: "url fail"}, err
 	}
 
 	var client http.Client
@@ -252,15 +255,14 @@ func doubanGetIndMovie(movieID string) (doubanIndividualMovie, error) {
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return doubanIndividualMovie{}, err
-		//panic(err)
+		return doubanIndividualMovie{SearchedTitle: qs, Url: movieID, ReturnReason: "bad GET"}, err
 	}
 
 	defer resp.Body.Close()
 
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
-		return doubanIndividualMovie{}, err
+		return doubanIndividualMovie{SearchedTitle: qs, Url: movieID, ReturnReason: "goquery error"}, err
 	}
 
 	var sBlock string
@@ -271,13 +273,15 @@ func doubanGetIndMovie(movieID string) (doubanIndividualMovie, error) {
 		sBlock = s.Text()
 	})
 
-	//fmt.Println(sBlock)
+	if json.Valid([]byte(sBlock)) == false {
+		return doubanIndividualMovie{SearchedTitle: qs, Url: movieID, ReturnReason: "bad json"}, errors.New("Invalid: can not parse json")
+	}
 
 	var movieResult doubanIndividualMovie
 
 	err = json.Unmarshal([]byte(sBlock), &movieResult)
 	if err != nil {
-		return doubanIndividualMovie{}, err
+		return doubanIndividualMovie{SearchedTitle: qs, ReturnReason: "Unmarshal error"}, err
 	}
 	//fmt.Println(movieResult)
 	//fmt.Printf("movie title: %v\nlink: https://movie.douban.com%v\nRating count: %v\nAverage rating: %v", movieResult.Name, movieResult.Url, movieResult.AggregateRating.RatingCount, movieResult.AggregateRating.RatingValue)
@@ -285,33 +289,32 @@ func doubanGetIndMovie(movieID string) (doubanIndividualMovie, error) {
 }
 
 func doubanWrapper(s string) (doubanIndividualMovie, error) {
-	fmt.Println("i made here")
 	// s := "双重躯体"
 	//text := "我要回高三"
 	// no result
 	var movieInfo doubanIndividualMovie
 
 	r, err := dbSearch(s)
-	fmt.Println(r)
+	//fmt.Println(r)
 	if err != nil {
 		fmt.Println("no movie found")
-		return doubanIndividualMovie{}, err
+		return doubanIndividualMovie{SearchedTitle: s, ReturnReason: "not found"}, err
 	} else {
-		fmt.Println("got to else")
 		movieId := strings.Fields(r)[1]
-		fmt.Println(r)
-		fmt.Println(movieId)
+		//fmt.Println(r)
+		//fmt.Println(movieId)
 
 		//movieId := "35594791"
-		movieInfo, err = doubanGetIndMovie(movieId)
+		movieInfo, err = doubanGetIndMovie(s, movieId)
 		if err != nil {
-			return doubanIndividualMovie{}, err
+			return doubanIndividualMovie{SearchedTitle: s, ReturnReason: fmt.Sprintf("%v", err)}, err
 		}
 	}
 	timenow := time.Now().Format("2006-01-02 15:04:05")
 	movieInfo.QueryDateTime = timenow
 	movieInfo.SearchedTitle = s
-	// fmt.Println(movieInfo)
+	movieInfo.ReturnReason = "Succesfull"
+
 	return movieInfo, nil
 
 }
@@ -327,47 +330,40 @@ func writeToJson(movieJson []doubanIndividualMovie, fileLoc string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("succesfull!")
+	fmt.Printf("write file: %v succesfull!\n", fileLoc)
 }
 
 func main() {
-	//var movieSearchResult []doubanIndividualMovie
+	var movieSearchResult []doubanIndividualMovie
 
+	// get movie database and duonao movie list
 	dbMovieList := loadJsonDb()
 	dnMovieList := getDuonaoMovieList()
+
+	// return the movie whenre it needs to get douban info
 	moviesToSearch := compareSrc(dbMovieList, dnMovieList)
 	fmt.Println(moviesToSearch)
 
-	movieId := "35307624"
-	movieInfo, err := doubanGetIndMovie(movieId)
-	fmt.Println(err)
-	fmt.Println(movieInfo)
+	// getting info from douban
+	if len(moviesToSearch) > 0 {
+		for i, v := range moviesToSearch {
+			fmt.Printf("index:%v, values to serach: %v\n", i, v)
+			dbr, err := doubanWrapper(v)
+			if err != nil {
+				fmt.Println(err)
+			}
+			movieSearchResult = append(movieSearchResult, dbr)
+			time.Sleep(1 * time.Second)
+		}
 
-	//===================testing block===================
-	// for i, v := range moviesToSearch {
-	// 	fmt.Printf("index:%v, values to serach: %v\n", i, v)
-	// 	r, err := dbSearch(v)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 	}
-	// 	fmt.Println(r)
-	// 	time.Sleep(1 * time.Second)
-	// }
-	//===================testing block===================
+		// creating database for all movies and a new movie file
+		movieDB := append(movieSearchResult, dbMovieList...)
 
-	// for i, v := range moviesToSearch {
-	// 	fmt.Printf("index:%v, values to serach: %v\n", i, v)
-	// 	dbr, err := doubanWrapper(v)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 	}
-	// 	movieSearchResult = append(movieSearchResult, dbr)
-	// 	time.Sleep(1 * time.Second)
-	// }
+		writeToJson(movieDB, "ify_movie_base.json")
+		writeToJson(movieSearchResult, "newMovie.json")
 
-	// movieDB := append(movieSearchResult, dbMovieList...)
-
-	// writeToJson(movieDB, "ify_movie_base.json")
-	// writeToJson(movieSearchResult, "newMovie.json")
+	} else {
+		fmt.Println("no movies to seach")
+	}
 
 }
