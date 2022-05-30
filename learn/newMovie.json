@@ -1,0 +1,79 @@
+[
+    {
+        "SearchedTitle": "凶火",
+        "ReturnReason": "Succesfull",
+        "Name": "凶火 Firestarter",
+        "Url": "/subject/25835398/",
+        "DatePublished": "2022-05-13",
+        "Genre": [
+            "科幻",
+            "惊悚",
+            "恐怖"
+        ],
+        "Duration": "PT1H34M",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "1045",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "4.8"
+        },
+        "QueryDateTime": "2022-05-30 16:15:36"
+    },
+    {
+        "SearchedTitle": "春天",
+        "ReturnReason": "Succesfull",
+        "Name": "春天不是读书天 Ferris Bueller\u0026#39;s Day Off",
+        "Url": "/subject/1295437/",
+        "DatePublished": "1986-06-11",
+        "Genre": [
+            "喜剧"
+        ],
+        "Duration": "PT1H43M",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "34443",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "8.0"
+        },
+        "QueryDateTime": "2022-05-30 16:15:48"
+    },
+    {
+        "SearchedTitle": "我要回高三",
+        "ReturnReason": "not found",
+        "Name": "",
+        "Url": "",
+        "DatePublished": "",
+        "Genre": null,
+        "Duration": "",
+        "AggregateRating": {
+            "@type": "",
+            "ratingCount": "",
+            "bestRating": "",
+            "worstRating": "",
+            "ratingValue": ""
+        },
+        "QueryDateTime": ""
+    },
+    {
+        "SearchedTitle": "球鞋灰姑娘",
+        "ReturnReason": "Succesfull",
+        "Name": "球鞋灰姑娘 Sneakerella",
+        "Url": "/subject/35398570/",
+        "DatePublished": "2022-05-13",
+        "Genre": [
+            "喜剧",
+            "歌舞"
+        ],
+        "Duration": "",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "123",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "5.5"
+        },
+        "QueryDateTime": "2022-05-30 16:16:10"
+    }
+]

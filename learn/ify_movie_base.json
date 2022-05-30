@@ -1,0 +1,275 @@
+[
+    {
+        "SearchedTitle": "凶火",
+        "ReturnReason": "Succesfull",
+        "Name": "凶火 Firestarter",
+        "Url": "/subject/25835398/",
+        "DatePublished": "2022-05-13",
+        "Genre": [
+            "科幻",
+            "惊悚",
+            "恐怖"
+        ],
+        "Duration": "PT1H34M",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "1045",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "4.8"
+        },
+        "QueryDateTime": "2022-05-30 16:15:36"
+    },
+    {
+        "SearchedTitle": "春天",
+        "ReturnReason": "Succesfull",
+        "Name": "春天不是读书天 Ferris Bueller\u0026#39;s Day Off",
+        "Url": "/subject/1295437/",
+        "DatePublished": "1986-06-11",
+        "Genre": [
+            "喜剧"
+        ],
+        "Duration": "PT1H43M",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "34443",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "8.0"
+        },
+        "QueryDateTime": "2022-05-30 16:15:48"
+    },
+    {
+        "SearchedTitle": "我要回高三",
+        "ReturnReason": "not found",
+        "Name": "",
+        "Url": "",
+        "DatePublished": "",
+        "Genre": null,
+        "Duration": "",
+        "AggregateRating": {
+            "@type": "",
+            "ratingCount": "",
+            "bestRating": "",
+            "worstRating": "",
+            "ratingValue": ""
+        },
+        "QueryDateTime": ""
+    },
+    {
+        "SearchedTitle": "球鞋灰姑娘",
+        "ReturnReason": "Succesfull",
+        "Name": "球鞋灰姑娘 Sneakerella",
+        "Url": "/subject/35398570/",
+        "DatePublished": "2022-05-13",
+        "Genre": [
+            "喜剧",
+            "歌舞"
+        ],
+        "Duration": "",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "123",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "5.5"
+        },
+        "QueryDateTime": "2022-05-30 16:16:10"
+    },
+    {
+        "SearchedTitle": "渔港的肉子酱",
+        "ReturnReason": "Invalid: can not parse json",
+        "Name": "",
+        "Url": "",
+        "DatePublished": "",
+        "Genre": null,
+        "Duration": "",
+        "AggregateRating": {
+            "@type": "",
+            "ratingCount": "",
+            "bestRating": "",
+            "worstRating": "",
+            "ratingValue": ""
+        },
+        "QueryDateTime": ""
+    },
+    {
+        "SearchedTitle": "刺猬索尼克2",
+        "ReturnReason": "",
+        "Name": "刺猬索尼克2 Sonic the Hedgehog 2",
+        "Url": "/subject/35083986/",
+        "DatePublished": "2022-04-08",
+        "Genre": [
+            "喜剧",
+            "动作",
+            "科幻",
+            "动画",
+            "冒险"
+        ],
+        "Duration": "PT2H2M",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "4819",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "5.7"
+        },
+        "QueryDateTime": "2022-05-30 14:57:31"
+    },
+    {
+        "SearchedTitle": "危情普什卡",
+        "ReturnReason": "",
+        "Name": "危情普什卡 Thar",
+        "Url": "/subject/35873904/",
+        "DatePublished": "2022-05-06",
+        "Genre": [
+            "动作",
+            "犯罪",
+            "西部",
+            "惊悚"
+        ],
+        "Duration": "PT1H48M",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "194",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "6.1"
+        },
+        "QueryDateTime": "2022-05-30 13:27:12"
+    },
+    {
+        "SearchedTitle": "夏夜追风",
+        "ReturnReason": "",
+        "Name": "夏夜追风 Along for the Ride",
+        "Url": "/subject/34456012/",
+        "DatePublished": "2022-05-06",
+        "Genre": [
+            "剧情",
+            "爱情"
+        ],
+        "Duration": "",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "495",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "6.3"
+        },
+        "QueryDateTime": "2022-05-30 13:27:14"
+    },
+    {
+        "SearchedTitle": "耍宝警探",
+        "ReturnReason": "",
+        "Name": "耍宝警探 Loin du périph",
+        "Url": "/subject/35410040/",
+        "DatePublished": "2022-05-06",
+        "Genre": [
+            "喜剧",
+            "动作"
+        ],
+        "Duration": "PT1H59M",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "343",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "5.9"
+        },
+        "QueryDateTime": "2022-05-30 12:51:30"
+    },
+    {
+        "SearchedTitle": "",
+        "ReturnReason": "",
+        "Name": "耍宝警探 Loin du périph",
+        "Url": "/subject/35410040/",
+        "DatePublished": "2022-05-06",
+        "Genre": [
+            "喜剧",
+            "动作"
+        ],
+        "Duration": "PT1H59M",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "343",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "5.9"
+        },
+        "QueryDateTime": "2022-05-30 12:43:50"
+    },
+    {
+        "SearchedTitle": "爱的怪物论",
+        "ReturnReason": "",
+        "Name": "爱的怪物论 Monstrous",
+        "Url": "/subject/35594791/",
+        "DatePublished": "2022-03-12",
+        "Genre": [
+            "悬疑",
+            "惊悚"
+        ],
+        "Duration": "PT1H29M",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "320",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "4.9"
+        },
+        "QueryDateTime": "2022-05-30 11:40:39"
+    },
+    {
+        "SearchedTitle": "疗伤旅程",
+        "ReturnReason": "",
+        "Name": "hello Monstrous",
+        "Url": "/subject/35594791/",
+        "DatePublished": "2022-03-12",
+        "Genre": [
+            "悬疑",
+            "惊悚"
+        ],
+        "Duration": "PT1H29M",
+        "AggregateRating": {
+            "@type": "AggregateRating",
+            "ratingCount": "320",
+            "bestRating": "10",
+            "worstRating": "2",
+            "ratingValue": "4.9"
+        },
+        "QueryDateTime": "2022-05-30 11:40:39"
+    },
+    {
+        "SearchedTitle": "一日赴死",
+        "ReturnReason": "",
+        "Name": "",
+        "Url": "",
+        "DatePublished": "",
+        "Genre": null,
+        "Duration": "",
+        "AggregateRating": {
+            "@type": "",
+            "ratingCount": "",
+            "bestRating": "",
+            "worstRating": "",
+            "ratingValue": ""
+        },
+        "QueryDateTime": ""
+    },
+    {
+        "SearchedTitle": "一杯上路",
+        "ReturnReason": "",
+        "Name": "",
+        "Url": "",
+        "DatePublished": "",
+        "Genre": null,
+        "Duration": "",
+        "AggregateRating": {
+            "@type": "",
+            "ratingCount": "",
+            "bestRating": "",
+            "worstRating": "",
+            "ratingValue": ""
+        },
+        "QueryDateTime": ""
+    }
+]
