@@ -3,11 +3,14 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
+	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/PuerkitoBio/goquery"
 )
@@ -15,7 +18,11 @@ import (
 type doubanIndividualMovie struct {
 	Name            string
 	Url             string
+	DatePublished   string          `json:datePublished`
+	Genre           []string        `json:genre`
+	Duration        string          `json:duration`
 	AggregateRating AggregateRating `json:aggregateRating`
+	QueryDateTime   string
 }
 
 type AggregateRating struct {
@@ -85,7 +92,33 @@ func dbSearch(qs string) string {
 	return strings.Split(sid, "\n")[0]
 }
 
-func doubanGetIndMovie(movieID string) {
+func doubanGetIndMovieLocal() doubanIndividualMovie {
+	f, err := os.Open("./douban_individual.html")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer f.Close()
+
+	doc, err := goquery.NewDocumentFromReader(f)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var sBlock string
+	doc.Find("script[type=\"application/ld+json\"]").Each(func(i int, s *goquery.Selection) {
+		sBlock = s.Text()
+	})
+
+	var movieResult doubanIndividualMovie
+
+	err = json.Unmarshal([]byte(sBlock), &movieResult)
+	if err != nil {
+		log.Fatal(err)
+	}
+	return movieResult
+}
+
+func doubanGetIndMovie(movieID string) doubanIndividualMovie {
 	dbMovieUrl := fmt.Sprintf("https://movie.douban.com/subject/%v/", movieID)
 	u, err := url.Parse(dbMovieUrl)
 	if err != nil {
@@ -111,12 +144,6 @@ func doubanGetIndMovie(movieID string) {
 
 	defer resp.Body.Close()
 
-	// f, err := os.Open("./douban_individual.html")
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
-	// defer f.Close()
-
 	doc, err := goquery.NewDocumentFromReader(resp.Body)
 	if err != nil {
 		log.Fatal(err)
@@ -124,7 +151,7 @@ func doubanGetIndMovie(movieID string) {
 
 	var sBlock string
 	// instead of getting the type=application/ld+json
-	// there's a tag div id="info", which can be a better solution
+	// there's a tag `div id="info"`, which can be a better solution
 	doc.Find("script[type=\"application/ld+json\"]").Each(func(i int, s *goquery.Selection) {
 		//doc.Find("script[type=application/ld+json]").Each(func(i int, s *goquery.Selection) {
 		sBlock = s.Text()
@@ -139,17 +166,17 @@ func doubanGetIndMovie(movieID string) {
 		log.Fatal(err)
 	}
 	//fmt.Println(movieResult)
-	fmt.Printf("movie title: %v\nlink: https://movie.douban.com%v\nRating count: %v\nAverage rating: %v", movieResult.Name, movieResult.Url, movieResult.AggregateRating.RatingCount, movieResult.AggregateRating.RatingValue)
-
+	//fmt.Printf("movie title: %v\nlink: https://movie.douban.com%v\nRating count: %v\nAverage rating: %v", movieResult.Name, movieResult.Url, movieResult.AggregateRating.RatingCount, movieResult.AggregateRating.RatingValue)
+	return movieResult
 }
 
-func doubanTest() {
-}
-
-func main() {
+func doubanWrapper(s string) {
+	// s := "双重躯体"
 	//text := "我要回高三"
 	// no result
-	r := dbSearch("双重躯体")
+	var movieInfo doubanIndividualMovie
+
+	r := dbSearch(s)
 	if r == "" {
 		fmt.Println("no movie found")
 	} else {
@@ -158,6 +185,44 @@ func main() {
 		fmt.Println(movieId)
 
 		//movieId := "35594791"
-		doubanGetIndMovie(movieId)
+		movieInfo = doubanGetIndMovie(movieId)
 	}
+	timenow := time.Now().Format("2006-01-02 15:04:05")
+	movieInfo.QueryDateTime = timenow
+	fmt.Println(movieInfo)
+
+}
+
+func writeToJson() {
+	// get one movie
+	movieInfo := doubanGetIndMovieLocal()
+	timenow := time.Now().Format("2006-01-02 15:04:05")
+	movieInfo.QueryDateTime = timenow
+
+	var movieJson []doubanIndividualMovie
+
+	// append to movie slice
+	movieJson = append(movieJson, movieInfo)
+
+	movieJson = append(movieJson, movieInfo)
+
+	b, err := json.MarshalIndent(movieJson, "", "    ")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	err = ioutil.WriteFile("ify_movie_base.json", b, 0644)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func main() {
+	// logic is
+	// 1. get ify list of new movies
+	// 2. compare it with existing local database
+	// 3. if there's new one, run douban API
+	// 4. append the results to the json
+	writeToJson()
+
 }
