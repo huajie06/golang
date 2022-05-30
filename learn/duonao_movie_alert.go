@@ -16,6 +16,15 @@ import (
 	"github.com/PuerkitoBio/goquery"
 )
 
+// some TODO:
+// change douban parser to look for `div id=info`, or fix the json with invalid chars
+// duonao URL builder, to set the parameter in order
+// movie database change name
+
+const localDBname = "./ify_movie_base.json"
+const localNewMovieList = "./newMovie.json"
+const localDuonao = "./iyf.json"
+
 // =========================below is from duonao=========================
 
 type duonaoMovieInfoRet struct {
@@ -110,7 +119,7 @@ func contains(s []string, str string) bool {
 func loadJsonDb() []doubanIndividualMovie {
 	// read the database and return a list of movies already in DB
 	var movieList []doubanIndividualMovie
-	f, err := os.Open("./ify_movie_base.json")
+	f, err := os.Open(localDBname)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -129,13 +138,58 @@ func loadJsonDb() []doubanIndividualMovie {
 }
 
 func getDuonaoMovieList() []duonaoMovieInfoRet {
-	f, err := os.Open("./iyf.json")
+
+	absUrl := "https://m10.iyf.tv/api/list/Search?cinema=1&page=1&size=36&orderby=0&desc=1&cid=0,1,3&isserial=-1&isIndex=-1&isfree=-1&vv=9a939766a82c1047ef6da69eb23f62d5&pub=CJOrCpGnC3WnE2umEJ0sNrLJNp8sC34wCJWpEZWrDsOwEJWnDpewCJ0pOLyPip8o6J6SCnmmd1oQ6PepC9cmiZ2oCfip6Xenc3CRCYzDJbcPcCmP3OvOZ8tDZOpCZXZD6HXPM4uOZbbCsOtDp6"
+	u, err := url.Parse(absUrl)
+
+	//u, err := url.Parse("https://m10.iyf.tv/api/list/Search?")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println(errors.New("duonao api fail"))
+		return []duonaoMovieInfoRet{}
+	}
+	// q := u.Query()
+	// q.Set("cinema", "1")
+	// q.Set("page", "1")
+	// q.Set("size", "36")
+	// q.Set("orderby", "0")
+	// q.Set("desc", "1")
+	// q.Set("cid", "0,1,3")
+	// q.Set("isserial", "-1")
+	// q.Set("isindex", "-1")
+	// q.Set("isfree", "-1")
+	// q.Set("vv", "9a939766a82c1047ef6da69eb23f62d5")
+	// q.Set("pub", "CJOrCpGnC3WnE2umEJ0sNrLJNp8sC34wCJWpEZWrDsOwEJWnDpewCJ0pOLyPip8o6J6SCnmmd1oQ6PepC9cmiZ2oCfip6Xenc3CRCYzDJbcPcCmP3OvOZ8tDZOpCZXZD6HXPM4uOZbbCsOtDp6")
+
+	//u.RawQuery = q.Encode()
+
+	// create a client
+	var client http.Client
+	req, err := http.NewRequest("GET", u.String(), nil)
+
+	req.Header.Set("Connection", "keep-alive")
+	req.Header.Set("Pragma", "no-cache")
+	req.Header.Set("Cache-Control", "no-cache")
+	req.Header.Set("Upgrade-Insecure-Requests", "1")
+	req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
+	req.Header.Set("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/86.0.4240.198 Safari/537.36")
+	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+	req.Header.Set("Accept-Language", "zh-CN,zh;q=0.9")
+
+	// send request
+	resp, err := client.Do(req)
+	if err != nil {
+		panic(err)
 	}
 
+	// parse response
+	defer resp.Body.Close()
+	// text, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	fmt.Println(err)
+	// }
+	// fmt.Println(string(text))
 	var dnMovieList duonaoMovieInfo
-	if err = json.NewDecoder(f).Decode(&dnMovieList); err != nil {
+	if err = json.NewDecoder(resp.Body).Decode(&dnMovieList); err != nil {
 		log.Fatal(err)
 	}
 
@@ -179,8 +233,6 @@ func doubanReturnMoreUrl(s string) []byte {
 
 func dbSearch(qs string) (string, error) {
 	fmt.Printf("==========%v=========\n", qs)
-	// TODO: if no results
-	// build URL
 	u, err := url.Parse("https://www.douban.com/search?")
 	if err != nil {
 		return "", err
@@ -235,6 +287,9 @@ func doubanGetIndMovie(qs, movieID string) (doubanIndividualMovie, error) {
 	fmt.Printf("==========%v=========\n", movieID)
 	fmt.Printf("==========%v=========\n", qs)
 
+	if qs == "" || movieID == "" {
+		return doubanIndividualMovie{}, errors.New("query return none")
+	}
 	dbMovieUrl := fmt.Sprintf("https://movie.douban.com/subject/%v/", movieID)
 	u, err := url.Parse(dbMovieUrl)
 	if err != nil {
@@ -297,7 +352,10 @@ func doubanWrapper(s string) (doubanIndividualMovie, error) {
 	r, err := dbSearch(s)
 	//fmt.Println(r)
 	if err != nil {
-		fmt.Println("no movie found")
+		fmt.Println("search error")
+		return doubanIndividualMovie{SearchedTitle: s, ReturnReason: "search error"}, err
+	} else if len(strings.Fields(r)) < 2 {
+		fmt.Println("no movie found, return non sid key")
 		return doubanIndividualMovie{SearchedTitle: s, ReturnReason: "not found"}, err
 	} else {
 		movieId := strings.Fields(r)[1]
@@ -342,25 +400,29 @@ func main() {
 
 	// return the movie whenre it needs to get douban info
 	moviesToSearch := compareSrc(dbMovieList, dnMovieList)
+	moviesToSearch2 := moviesToSearch[len(moviesToSearch)-7 : len(moviesToSearch)-3]
 	fmt.Println(moviesToSearch)
+
+	// control only search a few movies
+	fmt.Println(moviesToSearch2)
 
 	// getting info from douban
 	if len(moviesToSearch) > 0 {
-		for i, v := range moviesToSearch {
+		for i, v := range moviesToSearch2 {
 			fmt.Printf("index:%v, values to serach: %v\n", i, v)
 			dbr, err := doubanWrapper(v)
 			if err != nil {
 				fmt.Println(err)
 			}
 			movieSearchResult = append(movieSearchResult, dbr)
-			time.Sleep(1 * time.Second)
+			time.Sleep(10 * time.Second)
 		}
 
 		// creating database for all movies and a new movie file
 		movieDB := append(movieSearchResult, dbMovieList...)
 
-		writeToJson(movieDB, "ify_movie_base.json")
-		writeToJson(movieSearchResult, "newMovie.json")
+		writeToJson(movieDB, localDBname)
+		writeToJson(movieSearchResult, localNewMovieList)
 
 	} else {
 		fmt.Println("no movies to seach")
