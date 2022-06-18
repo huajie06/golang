@@ -1,4 +1,4 @@
-package main
+package archive
 
 import (
 	"bufio"
@@ -8,7 +8,7 @@ import (
 	"os"
 )
 
-func main() {
+func mainQuiz() {
 	file, _ := os.Open("//Users/huajiezhang/go/src/project1/data/problems.csv")
 	csvR := csv.NewReader(file)
 	scanner := bufio.NewScanner(os.Stdin)

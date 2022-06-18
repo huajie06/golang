@@ -3,7 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
-	"sitemap/link"
+	"learn/test/sitemap/link"
 )
 
 func main() {

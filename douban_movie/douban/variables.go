@@ -1,8 +1,8 @@
-package main
+package douban
 
 import "fmt"
 
-func main() {
+func quickTestmain() {
 	var v1 string = "hello world"
 	var str1 []byte = []byte("hello world")
 

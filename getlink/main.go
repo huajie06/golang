@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"getlink/link"
+	"learn/test/getlink/link"
 )
 
 func main() {

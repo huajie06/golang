@@ -1,8 +1,8 @@
-package main
+package archive
 
 import "fmt"
 
-func main() {
+func mainChnl2() {
 	fmt.Println("start main")
 	c := make(chan string)
 	go func() {

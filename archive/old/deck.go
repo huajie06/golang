@@ -1,6 +1,7 @@
-package deck
+package archive
 
 import (
+	"fmt"
 	"math/rand"
 	"sort"
 	"time"
@@ -53,4 +54,35 @@ func DelCard(v int, suit string, cards *[]Card) {
 		}
 	}
 	*cards = append((*cards)[:ind], (*cards)[ind+1:]...)
+}
+
+// TODO
+// package named Card, which will be exported
+// function New create a deck of cards
+
+// add sort functions to sort the cards
+// option to shuffle the cards
+// option to filter out cards
+
+// option to add an arbitrary number of jockers
+// option to construct a single deck composed of multiple decks
+
+func main() {
+	fmt.Println("------------New Card--------------------")
+	n := New()
+	fmt.Println(n)
+	fmt.Println("----------shuffled card-----------------")
+	ShuffleCard(n)
+	fmt.Println(n)
+	fmt.Println("----------sorted card-------------------")
+	SortCard(n)
+	fmt.Println(n)
+	fmt.Println("---------deleted card-------------------")
+	ShuffleCard(n)
+	fmt.Println(n)
+	DelCard(1, "spade", &n)
+	fmt.Println(n)
+	fmt.Println("---------re-sort card-------------------")
+	SortCard(n)
+	fmt.Println(n)
 }

@@ -1,4 +1,4 @@
-package main
+package archive
 
 import (
 	"bytes"
@@ -10,7 +10,7 @@ import (
 	"golang.org/x/crypto/ssh/knownhosts"
 )
 
-func main() {
+func mainSSHShell() {
 	hostKey, err := knownhosts.New("/Users/huajiezhang/.ssh/known_hosts")
 	if err != nil {
 		log.Fatal(err)

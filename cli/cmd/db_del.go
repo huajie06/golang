@@ -1,9 +1,9 @@
 package cmd
 
 import (
-	"cli/db"
 	"errors"
 	"fmt"
+	"learn/test/cli/db"
 	"log"
 	"strconv"
 	"strings"

@@ -1,8 +1,8 @@
 package main
 
 import (
-	"code_snippet/urlshort"
 	"fmt"
+	"learn/test/code_snippet/urlshort"
 )
 
 func main() {

@@ -3,8 +3,8 @@ package main
 import (
 	"fmt"
 	"io/ioutil"
+	"learn/test/parselink/urlshort"
 	"net/http"
-	"parselink/urlshort"
 )
 
 // S1 ...

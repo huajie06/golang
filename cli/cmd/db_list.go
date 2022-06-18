@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"cli/db"
+	"learn/test/cli/db"
 
 	"github.com/spf13/cobra"
 )

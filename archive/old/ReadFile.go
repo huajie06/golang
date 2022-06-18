@@ -1,11 +1,11 @@
-package main
+package archive
 
 import (
 	"fmt"
 	"os"
 )
 
-func main() {
+func mainRead() {
 	f := createFile("data/test.txt")
 	defer fileClose(f)
 	fileWrite(f)

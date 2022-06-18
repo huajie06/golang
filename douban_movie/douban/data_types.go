@@ -1,11 +1,8 @@
-package main
+package douban
 
-import (
-	"encoding/json"
-	"fmt"
-	"log"
-	"os"
-)
+const localDBname = "./ify_movie_base.json"
+const localNewMovieList = "./newMovie.json"
+const localDuonao = "./iyf.json"
 
 type MovieInfo struct {
 	Region, Language, AddTime, DNRate string
@@ -17,7 +14,21 @@ type Iyf struct {
 	Msg           string `json:"msg"`
 	IsSpecialArea int    `json:"isSpecialArea"`
 }
+
+// =========================below is from duonao=========================
+
+type duonaoMovieInfoRet struct {
+	Title, Region, Language, AddTime, DNRate string
+}
+
+type duonaoMovieInfo struct {
+	Ret           int    `json:"ret"`
+	Data          Data   `json:"data"`
+	Msg           string `json:"msg"`
+	IsSpecialArea int    `json:"isSpecialArea"`
+}
 type Result struct {
+	// the key and lastkey, one of them can be used to create link
 	AtypeName      string      `json:"atypeName"`
 	VideoClassID   string      `json:"videoClassID"`
 	Image          string      `json:"image"`
@@ -62,31 +73,24 @@ type Data struct {
 	Info []Info `json:"info"`
 }
 
-func main() {
-	f, err := os.Open("./iyf.json")
-	if err != nil {
-		log.Fatal(err)
-	}
+// =========================above is from duonao=========================
 
-	movieList := map[string]MovieInfo{}
+type doubanIndividualMovie struct {
+	SearchedTitle   string
+	ReturnReason    string
+	Name            string
+	Url             string
+	DatePublished   string          `json:datePublished`
+	Genre           []string        `json:genre`
+	Duration        string          `json:duration`
+	AggregateRating AggregateRating `json:aggregateRating`
+	QueryDateTime   string
+}
 
-	var ret Iyf
-	if jerr := json.NewDecoder(f).Decode(&ret); jerr != nil {
-		log.Fatal(jerr)
-	}
-
-	info := ret.Data.Info
-	result := info[0].Result
-	for _, v := range result {
-
-		_, found := movieList[v.Title]
-		if found == false {
-			movieList[v.Title] = MovieInfo{v.Regional, v.Lang, v.AddTime, v.Rating}
-		}
-	}
-
-	for key, value := range movieList {
-		fmt.Printf("key: %v, value: %v\n", key, value)
-	}
-
+type AggregateRating struct {
+	Type        string `json:"@type"`
+	RatingCount string `json:"ratingCount"`
+	BestRating  string `json:"bestRating"`
+	WorstRating string `json:"worstRating"`
+	RatingValue string `json:"ratingValue"`
 }

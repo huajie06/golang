@@ -1,4 +1,4 @@
-package main
+package douban
 
 import (
 	"bufio"
@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-func main() {
+func someTest() {
 
 	var a float64 = 77
 	fmt.Println(a / 2)
@@ -46,7 +46,7 @@ func main() {
 		if err != nil {
 			fmt.Println(err)
 		}
-		linen += 1
+		linen++
 		fmt.Println("=======")
 		fmt.Println(linen)
 		fmt.Println(line)
