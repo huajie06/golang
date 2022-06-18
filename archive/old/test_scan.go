@@ -1,4 +1,4 @@
-package main
+package archive
 
 import (
 	"bufio"
@@ -9,7 +9,7 @@ import (
 // PROMPT used as flag
 const PROMPT = "go>> "
 
-func main() {
+func mainTestScan() {
 	scanner := bufio.NewScanner(os.Stdin)
 	for fmt.Printf(PROMPT); scanner.Scan(); fmt.Printf(PROMPT) {
 		ln := scanner.Text()

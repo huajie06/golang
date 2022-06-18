@@ -1,4 +1,4 @@
-package main
+package archive
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 // if attempting to send to a channel, then itself will be blocked until there's a receiver
 // similary, if attempting to receive, it will get blocked untill there's a sender
 
-func main() {
+func mainChnl1() {
 	fmt.Println("start Main method")
 
 	c := make(chan string)

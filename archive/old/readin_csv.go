@@ -1,5 +1,4 @@
-// Package t is ...
-package t
+package archive
 
 import (
 	"encoding/csv"

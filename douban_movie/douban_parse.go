@@ -217,7 +217,7 @@ func writeToJson() {
 	}
 }
 
-func main() {
+func testRun() {
 	// logic is
 	// 1. get ify list of new movies
 	// 2. compare it with existing local database

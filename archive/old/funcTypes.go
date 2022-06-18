@@ -1,4 +1,4 @@
-package main
+package archive
 
 import (
 	"fmt"
@@ -10,7 +10,7 @@ func add(x, y int) int { return x + y }
 
 func (f binFunc) Error() string { return "binFunc error" }
 
-func main() {
+func mainFuncType() {
 	var bb binFunc
 
 	fmt.Println(bb.Error())

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"cli/cmd"
+	"learn/test/cli/cmd"
 )
 
 func main() {

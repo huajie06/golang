@@ -1,4 +1,4 @@
-package main
+package archive
 
 import (
 	"fmt"
@@ -6,7 +6,7 @@ import (
 	"os"
 )
 
-func main() {
+func mainIntRead() {
 	file, _ := os.Open("//Users/huajiezhang/go/src/project1/data/problems.csv") // For read access.
 	defer file.Close()
 	// DEF: func Open(name string) (*File, error)

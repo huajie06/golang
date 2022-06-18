@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"cli/db"
+	"learn/test/cli/db"
 	"log"
 	"strings"
 

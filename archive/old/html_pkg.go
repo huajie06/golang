@@ -1,4 +1,4 @@
-package main
+package archive
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"golang.org/x/net/html"
 )
 
-func main() {
+func mainHtmlPkg() {
 	s := `<p>Links:</p><ul><li><a href="foo">Foo</a><li><a href="/bar/baz">BarBaz</a></ul>`
 
 	_, err := html.Parse(strings.NewReader(s))
@@ -40,7 +40,7 @@ func main() {
 		//fmt.Println(string(b), string(y), x)
 		// x: y/n has attr, b is the tag, y is the value
 
-		if t := nt.Text(); len(t)>0 {
+		if t := nt.Text(); len(t) > 0 {
 			fmt.Println(string(t))
 		}
 	}

@@ -1,4 +1,4 @@
-package main
+package archive
 
 import (
 	"database/sql"
@@ -20,7 +20,7 @@ func (self *ViaSSHDialer) Dial(addr string) (net.Conn, error) {
 	return self.client.Dial("tcp", addr)
 }
 
-func main() {
+func mainSSHSQL() {
 	hostKey, err := knownhosts.New("/Users/huajiezhang/.ssh/known_hosts")
 	if err != nil {
 		log.Fatal(err)
